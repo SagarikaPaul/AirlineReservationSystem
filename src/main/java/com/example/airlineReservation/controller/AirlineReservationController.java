@@ -55,8 +55,9 @@ public class AirlineReservationController {
 		return status;
 	}
 	
+	//Get Booking Details by Travel Type
 	@GetMapping("/{travelType}")
-	public ResponseEntity<List<TravelDetails>> getUserDetailsbyId(@PathVariable String travelType){
+	public ResponseEntity<List<TravelDetails>> getTravelDetailsByTravelType(@PathVariable String travelType){
 		List<TravelDetails> travelDetails = airlineReservationService.getTravelDetailsByTravelType(travelType);
 		return new ResponseEntity<List<TravelDetails>>(travelDetails, HttpStatus.OK);
 		

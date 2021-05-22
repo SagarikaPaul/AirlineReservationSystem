@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 public class ReservationDetails {
 	
 	public static final String TICKET_DETAILS = "ReservationDetails.ticketDetails";
-	public static final String TICKET_DETAILS_QUERY = "Select distinct new com.example.airlineReservation.model.TravelDetails(rd.pnr, rd.passengerName, rd.passengerContactNumber, rd.source, rd.destination, a.travelType) from reservationDetails rd "
+	public static final String TICKET_DETAILS_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
 			+ "left join addressDetail ad on a.addressId = ad.address "
 			+ "where a.travelType = :travelType";

@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
-import com.example.airlineReservation.model.TravelDetails;
+import com.example.airlineReservation.model.ReservationDetails;
 
 public class AirlineReservationRepositoryImpl implements TravelRepository {
 	
@@ -14,10 +14,10 @@ public class AirlineReservationRepositoryImpl implements TravelRepository {
 	private EntityManager entityManager;
 	
 	@Override
-	public List<TravelDetails> ticketDetails(String travelType) {
-		TypedQuery<TravelDetails> query = entityManager.createNamedQuery("ReservationDetails.ticketDetails", TravelDetails.class);
+	public List<ReservationDetails> ticketDetails(String travelType) {
+		TypedQuery<ReservationDetails> query = entityManager.createNamedQuery("ReservationDetails.ticketDetails", ReservationDetails.class);
 		query.setParameter("travelType", travelType);
-		List<TravelDetails> result = query.getResultList();
+		List<ReservationDetails> result = query.getResultList();
 		return result;
 	}
 
