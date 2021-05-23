@@ -1,5 +1,8 @@
 package com.example.airlineReservation.model;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,15 +19,37 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity(name = "reservationDetails")
 @NamedQueries({
-	@NamedQuery(name = ReservationDetails.TICKET_DETAILS, query = ReservationDetails.TICKET_DETAILS_QUERY)
+	@NamedQuery(name = ReservationDetails.TICKET_DETAILS, query = ReservationDetails.TICKET_DETAILS_QUERY),
+	@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BY_AGE, query = ReservationDetails.TICKET_DETAILS_BY_AGE_QUERY),
+	@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BETWEEN_DATES, query = ReservationDetails.TICKET_DETAILS_BETWEEN_DATE_QUERY),
+
+
 })
 public class ReservationDetails {
 	
+	//query for traveltype
 	public static final String TICKET_DETAILS = "ReservationDetails.ticketDetails";
 	public static final String TICKET_DETAILS_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
 			+ "left join addressDetail ad on a.addressId = ad.address "
 			+ "where a.travelType = :travelType";
+	
+	//query for age
+	public static final String TICKET_DETAILS_BY_AGE = "ReservationDetails.byAgeDetails";
+	public static final String TICKET_DETAILS_BY_AGE_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join address a on rd.pnr = a.reservationDetails "
+			+ "left join addressDetail ad on a.addressId = ad.address "
+			+ "where rd.passengerAge < :passengerAge";
+	
+	//Query for inbetween dates
+	
+	public static final String TICKET_DETAILS_BETWEEN_DATES = "ReservationDetails.betweenDates";
+	public static final String TICKET_DETAILS_BETWEEN_DATE_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join address a on rd.pnr = a.reservationDetails "
+			+ "left join addressDetail ad on a.addressId = ad.address "
+			+ "where trunc(rd.bookingDate) between :startDate and :endDate";
+
+
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,12 +77,14 @@ public class ReservationDetails {
 	@JsonManagedReference
 	@OneToOne(mappedBy = "reservationDetails", cascade = CascadeType.ALL)
 	private Address address;
+	
+	private LocalDate bookingDate;
 
 	public ReservationDetails() {
 	}
 
 	public ReservationDetails(Long pnr, String passengerName, Integer passengerAge, Long passengerContactNumber,
-			String emailId, String source, String destination, Address address) {
+			String emailId, String source, String destination, Address address, LocalDate bookingDate) {
 		this.pnr = pnr;
 		this.passengerName = passengerName;
 		this.passengerAge = passengerAge;
@@ -66,6 +93,7 @@ public class ReservationDetails {
 		this.source = source;
 		this.destination = destination;
 		this.address = address;
+		this.bookingDate = bookingDate;
 	}
 
 	public Long getPnr() {
@@ -131,5 +159,15 @@ public class ReservationDetails {
 	public void setAddress(Address address) {
 		this.address = address;
 	}
+
+	public LocalDate getBookingDate() {
+		return bookingDate;
+	}
+
+	public void setBookingDate(LocalDate bookingDate) {
+		this.bookingDate = bookingDate;
+	}
+	
+	
 	
 }

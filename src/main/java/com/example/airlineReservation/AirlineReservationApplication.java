@@ -10,7 +10,10 @@ import com.example.airlineReservation.service.AirlineReservationService;
 import com.example.airlineReservation.service.AirlineReservationServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
 @SpringBootApplication
+@EnableSwagger2
 public class AirlineReservationApplication {
 	
 	@Bean

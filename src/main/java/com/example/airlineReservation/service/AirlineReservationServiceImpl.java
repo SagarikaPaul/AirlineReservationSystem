@@ -1,7 +1,9 @@
 package com.example.airlineReservation.service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		AirlineReservationOutput airlineReservationOutput = new AirlineReservationOutput();
 		Status status = new Status();
 		List<Status> statuses = new ArrayList<Status>();
+		airlineReservation.setBookingDate(LocalDate.now());
 		ReservationDetails reservationDetailsAdded =  airlineReservationRepository.save(airlineReservation);
 		if(!reservationDetailsAdded.getPnr().equals(null)) {
 			status.setStatusLevel("Success");
@@ -47,13 +50,47 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 	@Override
 	public List<TravelDetails> getTravelDetailsByTravelType(String travelType) {
 		List<TravelDetails> travelDetails = new ArrayList<>();
-		List<ReservationDetails> reservationDetails = travelRepository.ticketDetails(travelType);
+		List<ReservationDetails> reservationDetails = travelRepository.getTravelDetailsByTravelType(travelType);
 		travelDetails = reservationDetails.stream()
 							.map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), 
 									reservationDetail.getPassengerName(), reservationDetail.getPassengerContactNumber(),
 									reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
 							.collect(Collectors.toList());
 		return travelDetails;
+	}
+
+	@Override
+	public List<TravelDetails> getTravelDetailsByAge(int passengerAge) {
+		List<ReservationDetails> reservationDetails = travelRepository.getTravelDetailsByAge(passengerAge);
+		List<TravelDetails> travelDetails  = new ArrayList<>();
+		travelDetails = reservationDetails.stream().map(reservationDetail ->
+											new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(),
+													reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
+													reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+				.collect(Collectors.toList());
+		return travelDetails;
+	}
+
+	@Override
+	public List<TravelDetails> getTravellersBetweenDates(String startDate, String endDate) {
+		List<ReservationDetails> reservationDetails = travelRepository.getTravellersBetweenDates(startDate, endDate);
+		List<TravelDetails> travelDetails  = new ArrayList<>();
+		travelDetails = reservationDetails.stream().map(reservationDetail ->
+		new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(),
+				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
+				reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+				.collect(Collectors.toList());
+		return travelDetails;
+	}
+
+	@Override
+	public Optional<ReservationDetails> getPnrDetails(Long pnr) {
+		return airlineReservationRepository.findById(pnr) ;
+	}
+
+	@Override
+	public ReservationDetails updateUserDetails(ReservationDetails reservationDetails) {
+		return airlineReservationRepository.save(reservationDetails);
 	}
 
 }
