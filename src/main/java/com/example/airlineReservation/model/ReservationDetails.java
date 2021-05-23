@@ -55,7 +55,7 @@ public class ReservationDetails {
 	public static final String TICKET_DETAILS_BY_SEARCH_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
 			+ "left join addressDetail ad on a.addressId = ad.address "
-			+ "where (:pnr IS NULL OR rd.pnr = :pnr) AND (:passengerAge IS NULL OR rd.passengerAge = :passengerAge) "
+			+ "where (:pnr IS NULL OR rd.pnr = :pnr) AND (:passengerAge IS NULL OR rd.passengerAge >= :passengerAge) "
 			+ "AND (:source IS NULL OR rd.source = :source) AND (:destination IS NULL OR rd.destination = :destination)"
 			+ "AND (:travelType IS NULL OR a.travelType = :travelType)";
 
