@@ -93,4 +93,17 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		return airlineReservationRepository.save(reservationDetails);
 	}
 
+
+	@Override
+	public List<TravelDetails> getAllTravellers(Long pnr, int passengerAge, String source, String destination,
+			String travelType) {
+		List<TravelDetails> travelDetails = new ArrayList<>();
+		List<ReservationDetails> reservationDetails = travelRepository.getAllTravellersDetails(pnr, passengerAge,source,destination,travelType);
+		travelDetails =  reservationDetails.stream().map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(), 
+				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+				.collect(Collectors.toList());
+
+		return travelDetails;
+	}
+
 }

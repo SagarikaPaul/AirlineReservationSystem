@@ -7,6 +7,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
 import com.example.airlineReservation.model.ReservationDetails;
+import com.example.airlineReservation.model.TravelDetails;
 
 public class AirlineReservationRepositoryImpl implements TravelRepository {
 	
@@ -34,6 +35,18 @@ public class AirlineReservationRepositoryImpl implements TravelRepository {
 		TypedQuery<ReservationDetails> query = entityManager.createNamedQuery("ReservationDetails.betweenDates", ReservationDetails.class);
 		query.setParameter("startDate", startDate);
 		query.setParameter("endDate", endDate);
+		List<ReservationDetails> result = query.getResultList();
+		return result;
+	}
+
+	@Override
+	public List<ReservationDetails> getAllTravellersDetails(Long pnr, int passengerAge, String source, String destination,String travelType) {
+		TypedQuery<ReservationDetails> query = entityManager.createNamedQuery("ReservationDetails.bySearch", ReservationDetails.class);
+		query.setParameter("pnr", pnr);
+		query.setParameter("passengerAge", passengerAge);
+		query.setParameter("source", source);
+		query.setParameter("destination", destination);
+		query.setParameter("travelType", travelType);
 		List<ReservationDetails> result = query.getResultList();
 		return result;
 	}

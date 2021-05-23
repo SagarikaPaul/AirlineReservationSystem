@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -120,4 +121,17 @@ public class AirlineReservationController {
 	Message exceptionHandler(ValidationException e) {
 		return new Message(e.getMessage());
 	}
+	
+	//Search travel details by parameters
+	@GetMapping("/booking/search")
+	@ApiOperation(value = "Search travel details by parameters", response = TravelDetails.class, responseContainer = "TravelDetails")
+	public ResponseEntity<List<TravelDetails>> getTravelDetails(@RequestParam(required = false) Long pnr, 
+																@RequestParam(required = false) int passengerAge, 
+																@RequestParam(required = false) String source, 
+																@RequestParam(required = false) String destination,
+																@RequestParam(required = false) String travelType){
+		List<TravelDetails> travellersList = airlineReservationService.getAllTravellers(pnr, passengerAge, source, destination, travelType);
+		return new ResponseEntity<List<TravelDetails>>(travellersList,HttpStatus.OK);
+	}
+	
 }

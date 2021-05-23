@@ -15,5 +15,6 @@ public interface AirlineReservationService {
 	public List<TravelDetails> getTravellersBetweenDates(String startDate, String endDate);
 	public Optional<ReservationDetails> getPnrDetails(Long pnr);
 	public ReservationDetails updateUserDetails(ReservationDetails reservationDetails);
+	public List<TravelDetails> getAllTravellers(Long pnr, int passengerAge, String source, String destination, String travelType);
 
 }
