@@ -1,7 +1,7 @@
 package com.example.airlineReservation.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -18,39 +18,36 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity(name = "reservationDetails")
-@NamedQueries({
-	@NamedQuery(name = ReservationDetails.TICKET_DETAILS, query = ReservationDetails.TICKET_DETAILS_QUERY),
-	@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BY_AGE, query = ReservationDetails.TICKET_DETAILS_BY_AGE_QUERY),
-	@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BETWEEN_DATES, query = ReservationDetails.TICKET_DETAILS_BETWEEN_DATE_QUERY),
-	@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BY_SEARCH, query = ReservationDetails.TICKET_DETAILS_BY_SEARCH_QUERY),
-
+@NamedQueries({ @NamedQuery(name = ReservationDetails.TICKET_DETAILS, query = ReservationDetails.TICKET_DETAILS_QUERY),
+		@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BY_AGE, query = ReservationDetails.TICKET_DETAILS_BY_AGE_QUERY),
+		@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BETWEEN_DATES, query = ReservationDetails.TICKET_DETAILS_BETWEEN_DATE_QUERY),
+		@NamedQuery(name = ReservationDetails.TICKET_DETAILS_BY_SEARCH, query = ReservationDetails.TICKET_DETAILS_BY_SEARCH_QUERY),
+		@NamedQuery(name = ReservationDetails.USER_DETAILS_BY_CASHBACK, query = ReservationDetails.USER_DETAILS_BY_CASHBACK_QUERY)
 
 })
 public class ReservationDetails {
-	
-	//query for traveltype
+
+	// query for traveltype
 	public static final String TICKET_DETAILS = "ReservationDetails.ticketDetails";
 	public static final String TICKET_DETAILS_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
-			+ "left join addressDetail ad on a.addressId = ad.address "
-			+ "where a.travelType = :travelType";
-	
-	//query for age
+			+ "left join addressDetail ad on a.addressId = ad.address " + "where a.travelType = :travelType";
+
+	// query for age
 	public static final String TICKET_DETAILS_BY_AGE = "ReservationDetails.byAgeDetails";
 	public static final String TICKET_DETAILS_BY_AGE_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
-			+ "left join addressDetail ad on a.addressId = ad.address "
-			+ "where rd.passengerAge < :passengerAge";
-	
-	//Query for inbetween dates
-	
+			+ "left join addressDetail ad on a.addressId = ad.address " + "where rd.passengerAge < :passengerAge";
+
+	// Query for in between dates
+
 	public static final String TICKET_DETAILS_BETWEEN_DATES = "ReservationDetails.betweenDates";
 	public static final String TICKET_DETAILS_BETWEEN_DATE_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
 			+ "left join addressDetail ad on a.addressId = ad.address "
 			+ "where trunc(rd.bookingDate) between :startDate and :endDate";
 
-	//Search query
+	// Search query
 	public static final String TICKET_DETAILS_BY_SEARCH = "ReservationDetails.bySearch";
 	public static final String TICKET_DETAILS_BY_SEARCH_QUERY = "Select distinct rd from reservationDetails rd "
 			+ "left join address a on rd.pnr = a.reservationDetails "
@@ -59,42 +56,52 @@ public class ReservationDetails {
 			+ "AND (:source IS NULL OR rd.source = :source) AND (:destination IS NULL OR rd.destination = :destination)"
 			+ "AND (:travelType IS NULL OR a.travelType = :travelType)";
 
+	// CashBack query
+	public static final String USER_DETAILS_BY_CASHBACK = "ReservatioinDetails.byCashBack";
+	public static final String USER_DETAILS_BY_CASHBACK_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join address a on rd.pnr = a.reservationDetails "
+			+ "left join addressDetail ad on a.addressId = ad.address " 
+			+ "where (rd.passengerAge <= :age AND  a.travelType = :typeOfTravel)";
 
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long pnr;
-	
+
 	@NotBlank(message = "Name should not be blank")
 	private String passengerName;
-	
-	@NotNull(message= "Age may not be empty")
+
+	@NotNull(message = "Age may not be empty")
 	private Integer passengerAge;
-	
-	@NotNull(message= "Contact Number may not be empty")
+
+	@NotNull(message = "Contact Number may not be empty")
 	private Long passengerContactNumber;
-	
+
 	@NotBlank(message = "Email Id should not be blank")
 	@Email(message = "Email Id should be in correct format")
 	private String emailId;
-	
+
 	@NotBlank(message = "Source City should not be blank")
 	private String source;
-	
+
 	@NotBlank(message = "Destination City should not be blank")
 	private String destination;
-	
+
 	@JsonManagedReference
 	@OneToOne(mappedBy = "reservationDetails", cascade = CascadeType.ALL)
 	private Address address;
-	
+
 	private LocalDate bookingDate;
+
+	public String bookingStatus;
+
+	public BigDecimal bookingAmount;
 
 	public ReservationDetails() {
 	}
 
 	public ReservationDetails(Long pnr, String passengerName, Integer passengerAge, Long passengerContactNumber,
-			String emailId, String source, String destination, Address address, LocalDate bookingDate) {
+			String emailId, String source, String destination, Address address, LocalDate bookingDate,
+			String bookingStatus, BigDecimal bookingAmount) {
 		this.pnr = pnr;
 		this.passengerName = passengerName;
 		this.passengerAge = passengerAge;
@@ -104,6 +111,8 @@ public class ReservationDetails {
 		this.destination = destination;
 		this.address = address;
 		this.bookingDate = bookingDate;
+		this.bookingStatus = bookingStatus;
+		this.bookingAmount = bookingAmount;
 	}
 
 	public Long getPnr() {
@@ -177,7 +186,21 @@ public class ReservationDetails {
 	public void setBookingDate(LocalDate bookingDate) {
 		this.bookingDate = bookingDate;
 	}
-	
-	
-	
+
+	public String getBookingStatus() {
+		return bookingStatus;
+	}
+
+	public void setBookingStatus(String bookingStatus) {
+		this.bookingStatus = bookingStatus;
+	}
+
+	public BigDecimal getBookingAmount() {
+		return bookingAmount;
+	}
+
+	public void setBookingAmount(BigDecimal bookingAmount) {
+		this.bookingAmount = bookingAmount;
+	}
+
 }

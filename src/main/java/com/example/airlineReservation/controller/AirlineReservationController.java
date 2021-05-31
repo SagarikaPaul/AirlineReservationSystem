@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -102,7 +103,7 @@ public class AirlineReservationController {
 	@ApiOperation(value = "Update details of the user by id", response = ReservationDetails.class, responseContainer = "ReservationDetails" )
 	public ResponseEntity<String> updateUserDetails(@PathVariable Long pnr, @Valid @RequestBody ReservationDetails reservationDetails ) throws JsonProcessingException{
 		ObjectMapper customerMapper = new ObjectMapper();
-		String[] ignoreProperties = {"pnr", "address", "bookingDate"};
+		String[] ignoreProperties = {"pnr", "bookingDate"};
 		if (airlineReservationService.getPnrDetails(pnr).isPresent()){
 			ReservationDetails existingDetails = airlineReservationService.getPnrDetails(pnr).get();
 			BeanUtils.copyProperties(reservationDetails, existingDetails, ignoreProperties);
@@ -134,4 +135,18 @@ public class AirlineReservationController {
 		return new ResponseEntity<List<TravelDetails>>(travellersList,HttpStatus.OK);
 	}
 	
+	//Cancel an existing booked flight booking by PNR
+	@DeleteMapping(path ="cancelBooking/{pnr}", produces = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Cancel flight booking by using PNR", response = ReservationDetails.class, responseContainer = "ReservationDetails" )
+	public ResponseEntity<ReservationDetails> cancelBooking(@PathVariable Long pnr){
+		return new ResponseEntity<ReservationDetails>(airlineReservationService.getCancelBooking(pnr), HttpStatus.OK);
+		
+	}
+	
+	@GetMapping("/cashBack/{passengerAge}/{travelType}")
+	@ApiOperation(value = "Get the cashBack amount for the users based on travelType and age ", response = TravelDetails.class, responseContainer = "TravelDetails" )
+	public ResponseEntity<List<TravelDetails>> getCashBack(@PathVariable int passengerAge, @PathVariable String travelType ){
+		List<TravelDetails> travellersList = airlineReservationService.getAllTravellersElligableForCashBack(passengerAge, travelType);
+		return new ResponseEntity<List<TravelDetails>>(travellersList, HttpStatus.OK);
+	}
 }

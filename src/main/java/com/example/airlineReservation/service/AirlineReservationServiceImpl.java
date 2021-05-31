@@ -1,5 +1,6 @@
 package com.example.airlineReservation.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,8 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		Status status = new Status();
 		List<Status> statuses = new ArrayList<Status>();
 		airlineReservation.setBookingDate(LocalDate.now());
-		ReservationDetails reservationDetailsAdded =  airlineReservationRepository.save(airlineReservation);
+		airlineReservation.setBookingStatus("Booked");
+		ReservationDetails reservationDetailsAdded =  travelRepository.addBooking(airlineReservation);
 		if(!reservationDetailsAdded.getPnr().equals(null)) {
 			status.setStatusLevel("Success");
 			status.setMessage("Ticket booked successfully!!");
@@ -54,7 +56,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		travelDetails = reservationDetails.stream()
 							.map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), 
 									reservationDetail.getPassengerName(), reservationDetail.getPassengerContactNumber(),
-									reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+									reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
 							.collect(Collectors.toList());
 		return travelDetails;
 	}
@@ -66,7 +68,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		travelDetails = reservationDetails.stream().map(reservationDetail ->
 											new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(),
 													reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
-													reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+													reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(),null))
 				.collect(Collectors.toList());
 		return travelDetails;
 	}
@@ -78,7 +80,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		travelDetails = reservationDetails.stream().map(reservationDetail ->
 		new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(),
 				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
-				reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+				reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
 				.collect(Collectors.toList());
 		return travelDetails;
 	}
@@ -90,7 +92,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 
 	@Override
 	public ReservationDetails updateUserDetails(ReservationDetails reservationDetails) {
-		return airlineReservationRepository.save(reservationDetails);
+		return travelRepository.updateBooking(reservationDetails);
 	}
 
 
@@ -100,10 +102,37 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		List<TravelDetails> travelDetails = new ArrayList<>();
 		List<ReservationDetails> reservationDetails = travelRepository.getAllTravellersDetails(pnr, passengerAge,source,destination,travelType);
 		travelDetails =  reservationDetails.stream().map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(), 
-				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType()))
+				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
 				.collect(Collectors.toList());
 
 		return travelDetails;
+	}
+
+	@Override
+	public ReservationDetails getCancelBooking(Long pnr) {
+		ReservationDetails existingDetails = airlineReservationRepository.findById(pnr).get();
+		if(existingDetails != null) {
+			if(existingDetails.getBookingStatus() == "Booked") {
+				String updatedBookingStatus = "Booking cancelled";
+				existingDetails.setBookingStatus(updatedBookingStatus);
+				airlineReservationRepository.save(existingDetails);
+			}
+		}
+		return existingDetails;
+	}
+
+	@Override
+	public List<TravelDetails> getAllTravellersElligableForCashBack(int passengerAge, String travelType) {
+		List<ReservationDetails> reservationDetails = travelRepository.getAllTravellersForCashBack(passengerAge, travelType);
+		List<TravelDetails> travelDetails = reservationDetails.stream().map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(),
+				reservationDetail.getPassengerName(), reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
+				reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), getCashbackAmount(reservationDetail.getBookingAmount()))).collect(Collectors.toList());
+				
+		return travelDetails;
+	}
+	
+	public static BigDecimal getCashbackAmount(BigDecimal bookingAmount) {
+		return bookingAmount.multiply(new BigDecimal((double)20/100));
 	}
 
 }

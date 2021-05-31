@@ -5,9 +5,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
+import javax.transaction.Transactional;
 
 import com.example.airlineReservation.model.ReservationDetails;
-import com.example.airlineReservation.model.TravelDetails;
 
 public class AirlineReservationRepositoryImpl implements TravelRepository {
 	
@@ -47,6 +47,29 @@ public class AirlineReservationRepositoryImpl implements TravelRepository {
 		query.setParameter("source", source);
 		query.setParameter("destination", destination);
 		query.setParameter("travelType", travelType);
+		List<ReservationDetails> result = query.getResultList();
+		return result;
+	}
+
+	@Override
+	@Transactional
+	public ReservationDetails addBooking(ReservationDetails reservationDetails) {
+		entityManager.persist(reservationDetails);
+		return reservationDetails;
+	}
+
+	@Override
+	@Transactional
+	public ReservationDetails updateBooking(ReservationDetails reservationDetails) {
+		entityManager.merge(reservationDetails);
+		return reservationDetails;
+	}
+
+	@Override
+	public List<ReservationDetails> getAllTravellersForCashBack(int passengerAge, String travelType) {
+		TypedQuery<ReservationDetails> query = entityManager.createNamedQuery("ReservatioinDetails.byCashBack", ReservationDetails.class);
+		query.setParameter("age", passengerAge);
+		query.setParameter("typeOfTravel", travelType);
 		List<ReservationDetails> result = query.getResultList();
 		return result;
 	}

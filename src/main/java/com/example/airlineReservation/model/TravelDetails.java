@@ -1,5 +1,7 @@
 package com.example.airlineReservation.model;
 
+import java.math.BigDecimal;
+
 public class TravelDetails {
 
 	private Long pnr;
@@ -8,6 +10,7 @@ public class TravelDetails {
 	private String source;
 	private String destination;
 	private String travelType;
+	private BigDecimal cashBack;
 
 	public TravelDetails() {
 		super();
@@ -15,7 +18,7 @@ public class TravelDetails {
 	}
 
 	public TravelDetails(Long pnr, String passengerName, Long passengerContactNumber, String source, String destination,
-			String travelType) {
+			String travelType, BigDecimal cashBack) {
 		super();
 		this.pnr = pnr;
 		this.passengerName = passengerName;
@@ -23,6 +26,7 @@ public class TravelDetails {
 		this.source = source;
 		this.destination = destination;
 		this.travelType = travelType;
+		this.cashBack = cashBack;
 	}
 
 	public Long getPnr() {
@@ -72,5 +76,15 @@ public class TravelDetails {
 	public void setTravelType(String travelType) {
 		this.travelType = travelType;
 	}
+
+	public BigDecimal getCashBack() {
+		return cashBack;
+	}
+
+	public void setCashBack(BigDecimal cashBack) {
+		this.cashBack = cashBack;
+	}
+	
+	
 
 }

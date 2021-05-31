@@ -27,7 +27,7 @@ public class Address {
 	private String travelType;
 	
 	@JsonBackReference
-	@OneToOne
+	@OneToOne(cascade = CascadeType.MERGE)
 	@JoinColumn(name = "pnr", referencedColumnName = "pnr")
 	private ReservationDetails reservationDetails;
 	

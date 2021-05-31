@@ -7,6 +7,8 @@ import com.example.airlineReservation.model.AirlineReservationOutput;
 import com.example.airlineReservation.model.ReservationDetails;
 import com.example.airlineReservation.model.TravelDetails;
 
+import io.swagger.models.auth.In;
+
 public interface AirlineReservationService {
 
 	public AirlineReservationOutput addUser(ReservationDetails airlineReservation);
@@ -16,5 +18,7 @@ public interface AirlineReservationService {
 	public Optional<ReservationDetails> getPnrDetails(Long pnr);
 	public ReservationDetails updateUserDetails(ReservationDetails reservationDetails);
 	public List<TravelDetails> getAllTravellers(Long pnr, int passengerAge, String source, String destination, String travelType);
+	public ReservationDetails getCancelBooking (Long pnr);
+	public List<TravelDetails> getAllTravellersElligableForCashBack(int passengerAge, String travelType);
 
 }
