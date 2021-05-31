@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.airlineReservation.model.AirlineReservationOutput;
+import com.example.airlineReservation.model.PassengerDetails;
 import com.example.airlineReservation.model.ReservationDetails;
 import com.example.airlineReservation.model.TravelDetails;
 
-import io.swagger.models.auth.In;
-
 public interface AirlineReservationService {
 
-	public AirlineReservationOutput addUser(ReservationDetails airlineReservation);
+	public PassengerDetails addUserDetails(PassengerDetails passengerDetails);	
+	public AirlineReservationOutput bookTicket(ReservationDetails airlineReservation);
 	public List<TravelDetails> getTravelDetailsByTravelType(String travelType);
 	public List<TravelDetails> getTravelDetailsByAge(int passengerAge);
 	public List<TravelDetails> getTravellersBetweenDates(String startDate, String endDate);

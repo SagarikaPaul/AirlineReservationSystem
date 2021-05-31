@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.airlineReservation.model.AirlineReservationOutput;
+import com.example.airlineReservation.model.PassengerDetails;
 import com.example.airlineReservation.model.ReservationDetails;
 import com.example.airlineReservation.model.Status;
 import com.example.airlineReservation.model.TravelDetails;
 import com.example.airlineReservation.repository.AirlineReservationRepository;
+import com.example.airlineReservation.repository.PassengerRepository;
 import com.example.airlineReservation.repository.TravelRepository;
 
 @Service
@@ -25,9 +27,18 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 	
 	@Autowired
 	private TravelRepository travelRepository;
+	
+	@Autowired
+	private PassengerRepository passengerRepository;
+	
+	
+	@Override
+	public PassengerDetails addUserDetails(PassengerDetails passengerDetails) {
+		return passengerRepository.save(passengerDetails);
+	}
 
 	@Override
-	public AirlineReservationOutput addUser(ReservationDetails airlineReservation) {
+	public AirlineReservationOutput bookTicket(ReservationDetails airlineReservation) {
 		AirlineReservationOutput airlineReservationOutput = new AirlineReservationOutput();
 		Status status = new Status();
 		List<Status> statuses = new ArrayList<Status>();
@@ -55,7 +66,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		List<ReservationDetails> reservationDetails = travelRepository.getTravelDetailsByTravelType(travelType);
 		travelDetails = reservationDetails.stream()
 							.map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), 
-									reservationDetail.getPassengerName(), reservationDetail.getPassengerContactNumber(),
+									reservationDetail.getPassengerDetails().getPassengerName(), reservationDetail.getPassengerDetails().getContactNumber(),
 									reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
 							.collect(Collectors.toList());
 		return travelDetails;
@@ -66,8 +77,8 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		List<ReservationDetails> reservationDetails = travelRepository.getTravelDetailsByAge(passengerAge);
 		List<TravelDetails> travelDetails  = new ArrayList<>();
 		travelDetails = reservationDetails.stream().map(reservationDetail ->
-											new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(),
-													reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
+											new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerDetails().getPassengerName(),
+													reservationDetail.getPassengerDetails().getContactNumber(), reservationDetail.getSource(),
 													reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(),null))
 				.collect(Collectors.toList());
 		return travelDetails;
@@ -78,8 +89,8 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 		List<ReservationDetails> reservationDetails = travelRepository.getTravellersBetweenDates(startDate, endDate);
 		List<TravelDetails> travelDetails  = new ArrayList<>();
 		travelDetails = reservationDetails.stream().map(reservationDetail ->
-		new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(),
-				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
+		new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerDetails().getPassengerName(),
+				reservationDetail.getPassengerDetails().getContactNumber(), reservationDetail.getSource(),
 				reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
 				.collect(Collectors.toList());
 		return travelDetails;
@@ -101,8 +112,8 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 			String travelType) {
 		List<TravelDetails> travelDetails = new ArrayList<>();
 		List<ReservationDetails> reservationDetails = travelRepository.getAllTravellersDetails(pnr, passengerAge,source,destination,travelType);
-		travelDetails =  reservationDetails.stream().map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerName(), 
-				reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
+		travelDetails =  reservationDetails.stream().map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(), reservationDetail.getPassengerDetails().getPassengerName(), 
+				reservationDetail.getPassengerDetails().getContactNumber(), reservationDetail.getSource(), reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), null))
 				.collect(Collectors.toList());
 
 		return travelDetails;
@@ -125,7 +136,7 @@ public class AirlineReservationServiceImpl implements AirlineReservationService 
 	public List<TravelDetails> getAllTravellersElligableForCashBack(int passengerAge, String travelType) {
 		List<ReservationDetails> reservationDetails = travelRepository.getAllTravellersForCashBack(passengerAge, travelType);
 		List<TravelDetails> travelDetails = reservationDetails.stream().map(reservationDetail -> new TravelDetails(reservationDetail.getPnr(),
-				reservationDetail.getPassengerName(), reservationDetail.getPassengerContactNumber(), reservationDetail.getSource(),
+				reservationDetail.getPassengerDetails().getPassengerName(), reservationDetail.getPassengerDetails().getContactNumber(), reservationDetail.getSource(),
 				reservationDetail.getDestination(), reservationDetail.getAddress().getTravelType(), getCashbackAmount(reservationDetail.getBookingAmount()))).collect(Collectors.toList());
 				
 		return travelDetails;

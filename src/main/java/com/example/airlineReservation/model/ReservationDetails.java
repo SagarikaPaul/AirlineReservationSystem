@@ -8,13 +8,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToOne;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity(name = "reservationDetails")
@@ -36,13 +37,15 @@ public class ReservationDetails {
 	// query for age
 	public static final String TICKET_DETAILS_BY_AGE = "ReservationDetails.byAgeDetails";
 	public static final String TICKET_DETAILS_BY_AGE_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join passengerDetails pd on rd.passengerDetails = pd.passengerId "
 			+ "left join address a on rd.pnr = a.reservationDetails "
-			+ "left join addressDetail ad on a.addressId = ad.address " + "where rd.passengerAge < :passengerAge";
+			+ "left join addressDetail ad on a.addressId = ad.address " + "where pd.passengerAge < :passengerAge";
 
 	// Query for in between dates
 
 	public static final String TICKET_DETAILS_BETWEEN_DATES = "ReservationDetails.betweenDates";
 	public static final String TICKET_DETAILS_BETWEEN_DATE_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join passengerDetails pd on rd.passengerDetails = pd.passengerId "
 			+ "left join address a on rd.pnr = a.reservationDetails "
 			+ "left join addressDetail ad on a.addressId = ad.address "
 			+ "where trunc(rd.bookingDate) between :startDate and :endDate";
@@ -50,35 +53,24 @@ public class ReservationDetails {
 	// Search query
 	public static final String TICKET_DETAILS_BY_SEARCH = "ReservationDetails.bySearch";
 	public static final String TICKET_DETAILS_BY_SEARCH_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join passengerDetails pd on rd.passengerDetails = pd.passengerId "
 			+ "left join address a on rd.pnr = a.reservationDetails "
 			+ "left join addressDetail ad on a.addressId = ad.address "
-			+ "where (:pnr IS NULL OR rd.pnr = :pnr) AND (:passengerAge IS NULL OR rd.passengerAge >= :passengerAge) "
+			+ "where (:pnr IS NULL OR rd.pnr = :pnr) AND (:passengerAge IS NULL OR pd.passengerAge >= :passengerAge) "
 			+ "AND (:source IS NULL OR rd.source = :source) AND (:destination IS NULL OR rd.destination = :destination)"
 			+ "AND (:travelType IS NULL OR a.travelType = :travelType)";
 
 	// CashBack query
 	public static final String USER_DETAILS_BY_CASHBACK = "ReservatioinDetails.byCashBack";
 	public static final String USER_DETAILS_BY_CASHBACK_QUERY = "Select distinct rd from reservationDetails rd "
+			+ "left join passengerDetails pd on rd.passengerDetails = pd.passengerId "
 			+ "left join address a on rd.pnr = a.reservationDetails "
-			+ "left join addressDetail ad on a.addressId = ad.address " 
-			+ "where (rd.passengerAge <= :age AND  a.travelType = :typeOfTravel)";
+			+ "left join addressDetail ad on a.addressId = ad.address "
+			+ "where (pd.passengerAge <= :age AND  a.travelType = :typeOfTravel)";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long pnr;
-
-	@NotBlank(message = "Name should not be blank")
-	private String passengerName;
-
-	@NotNull(message = "Age may not be empty")
-	private Integer passengerAge;
-
-	@NotNull(message = "Contact Number may not be empty")
-	private Long passengerContactNumber;
-
-	@NotBlank(message = "Email Id should not be blank")
-	@Email(message = "Email Id should be in correct format")
-	private String emailId;
 
 	@NotBlank(message = "Source City should not be blank")
 	private String source;
@@ -90,6 +82,11 @@ public class ReservationDetails {
 	@OneToOne(mappedBy = "reservationDetails", cascade = CascadeType.ALL)
 	private Address address;
 
+	@JsonBackReference
+	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name ="passengerId", referencedColumnName = "passengerId")
+	private PassengerDetails passengerDetails;
+
 	private LocalDate bookingDate;
 
 	public String bookingStatus;
@@ -99,17 +96,14 @@ public class ReservationDetails {
 	public ReservationDetails() {
 	}
 
-	public ReservationDetails(Long pnr, String passengerName, Integer passengerAge, Long passengerContactNumber,
-			String emailId, String source, String destination, Address address, LocalDate bookingDate,
-			String bookingStatus, BigDecimal bookingAmount) {
+	public ReservationDetails(Long pnr, String source, String destination, Address address,
+			PassengerDetails passengerDetails, LocalDate bookingDate, String bookingStatus, BigDecimal bookingAmount) {
+		super();
 		this.pnr = pnr;
-		this.passengerName = passengerName;
-		this.passengerAge = passengerAge;
-		this.passengerContactNumber = passengerContactNumber;
-		this.emailId = emailId;
 		this.source = source;
 		this.destination = destination;
 		this.address = address;
+		this.passengerDetails = passengerDetails;
 		this.bookingDate = bookingDate;
 		this.bookingStatus = bookingStatus;
 		this.bookingAmount = bookingAmount;
@@ -121,38 +115,6 @@ public class ReservationDetails {
 
 	public void setPnr(Long pnr) {
 		this.pnr = pnr;
-	}
-
-	public String getPassengerName() {
-		return passengerName;
-	}
-
-	public void setPassengerName(String passengerName) {
-		this.passengerName = passengerName;
-	}
-
-	public int getPassengerAge() {
-		return passengerAge;
-	}
-
-	public void setPassengerAge(Integer passengerAge) {
-		this.passengerAge = passengerAge;
-	}
-
-	public Long getPassengerContactNumber() {
-		return passengerContactNumber;
-	}
-
-	public void setPassengerContactNumber(Long passengerContactNumber) {
-		this.passengerContactNumber = passengerContactNumber;
-	}
-
-	public String getEmailId() {
-		return emailId;
-	}
-
-	public void setEmailId(String emailId) {
-		this.emailId = emailId;
 	}
 
 	public String getSource() {
@@ -201,6 +163,14 @@ public class ReservationDetails {
 
 	public void setBookingAmount(BigDecimal bookingAmount) {
 		this.bookingAmount = bookingAmount;
+	}
+
+	public PassengerDetails getPassengerDetails() {
+		return passengerDetails;
+	}
+
+	public void setPassengerDetails(PassengerDetails passengerDetails) {
+		this.passengerDetails = passengerDetails;
 	}
 
 }

@@ -48,12 +48,12 @@ public class AirlineReservationController {
 	@Autowired
 	private AirlineReservationService airlineReservationService;
 	
-	//Add user to book flight
+	//To book flight
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(value = "book new ticket for the user", response = AirlineReservationOutput.class, responseContainer = "String")
-	public ResponseEntity<String> addUser(@Valid @RequestBody ReservationDetails reservationDetails) throws JsonProcessingException{
+	public ResponseEntity<String> bookTicket(@Valid @RequestBody ReservationDetails reservationDetails) throws JsonProcessingException{
 		ObjectMapper customerMapper = new ObjectMapper();
-		AirlineReservationOutput airlineReservationOutput = airlineReservationService.addUser(reservationDetails);
+		AirlineReservationOutput airlineReservationOutput = airlineReservationService.bookTicket(reservationDetails);
 		customerMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 		customerMapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 		
@@ -143,6 +143,7 @@ public class AirlineReservationController {
 		
 	}
 	
+	// Get cashback amount 
 	@GetMapping("/cashBack/{passengerAge}/{travelType}")
 	@ApiOperation(value = "Get the cashBack amount for the users based on travelType and age ", response = TravelDetails.class, responseContainer = "TravelDetails" )
 	public ResponseEntity<List<TravelDetails>> getCashBack(@PathVariable int passengerAge, @PathVariable String travelType ){
